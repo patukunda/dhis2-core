@@ -109,7 +109,7 @@ public class JdbcEventAnalyticsManager
     {
         String countClause = getAggregateClause( params );
         
-        String sql = "select " + countClause + " as value," + StringUtils.join( getSelectColumns( params ), "," ) + " ";
+        String sql = "select " + countClause + " as value," + StringUtils.join( getSelectColumns( params, false ), "," ) + " ";
 
         // ---------------------------------------------------------------------
         // Criteria
@@ -121,7 +121,7 @@ public class JdbcEventAnalyticsManager
         // Group by
         // ---------------------------------------------------------------------
 
-        sql += "group by " + StringUtils.join( getSelectColumns( params ), "," ) + " ";
+        sql += "group by " + StringUtils.join( getSelectColumns( params, true ), "," ) + ", ps ";
 
         // ---------------------------------------------------------------------
         // Sort order
@@ -228,7 +228,7 @@ public class JdbcEventAnalyticsManager
     {
         List<String> fixedCols = Lists.newArrayList( "psi", "ps", "executiondate", "longitude", "latitude", "ouname", "oucode" );
         
-        List<String> selectCols = ListUtils.distinctUnion( fixedCols, getSelectColumns( params ) );
+        List<String> selectCols = ListUtils.distinctUnion( fixedCols, getSelectColumns( params, false ) );
 
         String sql = "select " + StringUtils.join( selectCols, "," ) + " ";
 
@@ -498,8 +498,10 @@ public class JdbcEventAnalyticsManager
      * second. Program indicator expressions are converted to SQL expressions.
      * 
      * @param params the {@link EventQueryParams}.
+     * @param columnNamesOnly used to indicate that only the names of each column is 
+     * returned, not the sql to get the underlying data.
      */
-    private List<String> getSelectColumns( EventQueryParams params )
+    private List<String> getSelectColumns( EventQueryParams params, boolean columnNamesOnly )
     {
         List<String> columns = Lists.newArrayList();
         
@@ -510,27 +512,53 @@ public class JdbcEventAnalyticsManager
         
         for ( QueryItem queryItem : params.getItems() )
         {            
-            if ( queryItem.isProgramIndicator() )
-            {
-                ProgramIndicator in = (ProgramIndicator) queryItem.getItem();
-                
-                String asClause = " as " + statementBuilder.columnQuote( in.getUid() );
-                
-                columns.add( "(" + programIndicatorService.getAnalyticsSQl( in.getExpression(), in.getAnalyticsType(), params.getEarliestStartDate(), params.getLatestEndDate() ) + ")" + asClause );
-            }
-            else if ( ValueType.COORDINATE == queryItem.getValueType() )
-            {
-                String colName = statementBuilder.columnQuote( queryItem.getItemName() );
-                
-                String coordSql =  
-                    "'[' || round(ST_X(" + colName + ")::numeric, " + COORD_DEC + ") ||" +
-                    "',' || round(ST_Y(" + colName + ")::numeric, " + COORD_DEC + ") || ']' as " + colName;
-                
-                columns.add( coordSql );
-            }
-            else
+            if ( columnNamesOnly )
             {
                 columns.add( statementBuilder.columnQuote( queryItem.getItemName() ) );
+            }
+            else
+            {        
+                if ( queryItem.isProgramIndicator() )
+                {
+                    ProgramIndicator in = (ProgramIndicator) queryItem.getItem();
+                    
+                    String asClause = " as " + statementBuilder.columnQuote( in.getUid() );
+                    
+                    columns.add( "(" + programIndicatorService.getAnalyticsSQl( in.getExpression(), in.getAnalyticsType(), params.getEarliestStartDate(), params.getLatestEndDate() ) + ")" + asClause );
+                }
+                else if ( ValueType.COORDINATE == queryItem.getValueType() )
+                {
+                    String colName = statementBuilder.columnQuote( queryItem.getItemName() );
+                    
+                    String coordSql =  
+                        "'[' || round(ST_X(" + colName + ")::numeric, " + COORD_DEC + ") ||" +
+                        "',' || round(ST_Y(" + colName + ")::numeric, " + COORD_DEC + ") || ']'";
+                    
+                    if ( queryItem.hasProgramStage() )
+                    {
+                        coordSql = "(select case when ps = '" + queryItem.getProgramStage().getUid() +
+                            "' then " + coordSql +" else 0 end as " + colName + ")"; 
+                    }
+                    else
+                    {
+                        coordSql += " as " + colName;
+                    }
+                    
+                    columns.add( coordSql );
+                }
+                else
+                {
+                    if ( queryItem.hasProgramStage() )
+                    {
+                        columns.add( "(select case when ps = '" + queryItem.getProgramStage().getUid() +
+                            "' then " + statementBuilder.columnQuote( queryItem.getItemName() ) +
+                            " else 0 end as " + statementBuilder.columnQuote( queryItem.getItemName() ) + ") " ); 
+                    }
+                    else
+                    {
+                        columns.add( statementBuilder.columnQuote( queryItem.getItemName() ) );
+                    }
+                }    
             }
         }
         
@@ -565,7 +593,16 @@ public class JdbcEventAnalyticsManager
             }
             else
             {
-                columns.add( queryItem.getItemName() );
+                if ( queryItem.hasProgramStage() )
+                {
+                    columns.add( "(select case when ps = '" + queryItem.getProgramStage().getUid() +
+                        "' then " + statementBuilder.columnQuote( queryItem.getItemName() ) + " else 0 end as " +
+                        statementBuilder.columnQuote( queryItem.getItemName() ) + ") " ); 
+                }
+                else
+                {
+                    columns.add( statementBuilder.columnQuote( queryItem.getItemName() ) );
+                }
             }
         }
         

@@ -64,6 +64,7 @@ public interface DimensionalObject
     String DIMENSION_NAME_SEP = ":";
     String OPTION_SEP = ";";
     String ITEM_SEP = "-";
+    String PROGRAMSTAGE_SEP = "\\.";
         
     List<String> STATIC_DIMS = ImmutableList.<String>builder().add( 
         LONGITUDE_DIM_ID, LATITUDE_DIM_ID ).build();

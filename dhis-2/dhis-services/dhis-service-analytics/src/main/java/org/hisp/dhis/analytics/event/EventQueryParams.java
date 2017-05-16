@@ -280,7 +280,7 @@ public class EventQueryParams
         {
             ProgramDataElementDimensionItem element = (ProgramDataElementDimensionItem) object;
             DataElement dataElement = element.getDataElement(); 
-            QueryItem item = new QueryItem( dataElement, ( dataElement.getLegendSets().isEmpty() ? null : dataElement.getLegendSets().get( 0 ) ), dataElement.getValueType(), dataElement.getAggregationType(), dataElement.getOptionSet() );
+            QueryItem item = new QueryItem( dataElement, dataQueryParams.getProgramStage(), ( dataElement.getLegendSets().isEmpty() ? null : dataElement.getLegendSets().get( 0 ) ), dataElement.getValueType(), dataElement.getAggregationType(), dataElement.getOptionSet() );
             item.setProgram( element.getProgram() );
             builder.addItem( item );
         }
@@ -289,7 +289,7 @@ public class EventQueryParams
         {
             ProgramTrackedEntityAttributeDimensionItem element = (ProgramTrackedEntityAttributeDimensionItem) object;
             TrackedEntityAttribute attribute = element.getAttribute();
-            QueryItem item = new QueryItem( attribute, ( attribute.getLegendSets().isEmpty() ? null : attribute.getLegendSets().get( 0 ) ), attribute.getValueType(), attribute.getAggregationType(), attribute.getOptionSet() );
+            QueryItem item = new QueryItem( attribute, null, ( attribute.getLegendSets().isEmpty() ? null : attribute.getLegendSets().get( 0 ) ), attribute.getValueType(), attribute.getAggregationType(), attribute.getOptionSet() );
             item.setProgram( element.getProgram() );
             builder.addItem( item );
         }
@@ -298,7 +298,7 @@ public class EventQueryParams
         {
             ProgramDataElementDimensionItem element = (ProgramDataElementDimensionItem) object;
             DataElement dataElement = element.getDataElement(); 
-            QueryItem item = new QueryItem( dataElement, ( dataElement.getLegendSets().isEmpty() ? null : dataElement.getLegendSets().get( 0 ) ), dataElement.getValueType(), dataElement.getAggregationType(), dataElement.getOptionSet() );
+            QueryItem item = new QueryItem( dataElement, dataQueryParams.getProgramStage(),  ( dataElement.getLegendSets().isEmpty() ? null : dataElement.getLegendSets().get( 0 ) ), dataElement.getValueType(), dataElement.getAggregationType(), dataElement.getOptionSet() );
             item.setProgram( element.getProgram() );
             builder.addItemFilter( item );
         }
@@ -307,7 +307,7 @@ public class EventQueryParams
         {
             ProgramTrackedEntityAttributeDimensionItem element = (ProgramTrackedEntityAttributeDimensionItem) object;
             TrackedEntityAttribute attribute = element.getAttribute();
-            QueryItem item = new QueryItem( attribute, ( attribute.getLegendSets().isEmpty() ? null : attribute.getLegendSets().get( 0 ) ), attribute.getValueType(), attribute.getAggregationType(), attribute.getOptionSet() );
+            QueryItem item = new QueryItem( attribute, null, ( attribute.getLegendSets().isEmpty() ? null : attribute.getLegendSets().get( 0 ) ), attribute.getValueType(), attribute.getAggregationType(), attribute.getOptionSet() );
             builder.addItemFilter( item );
         }
 

@@ -60,6 +60,7 @@ import java.util.Set;
 import static org.hisp.dhis.analytics.event.EventAnalyticsService.*;
 import static org.hisp.dhis.common.DimensionalObject.DIMENSION_NAME_SEP;
 import static org.hisp.dhis.common.DimensionalObject.ITEM_SEP;
+import static org.hisp.dhis.common.DimensionalObject.PROGRAMSTAGE_SEP;
 import static org.hisp.dhis.common.DimensionalObjectUtils.*;
 
 /**
@@ -375,17 +376,26 @@ public class DefaultEventDataQueryService
     {
         String[] split = dimension.split( ITEM_SEP );
 
-        String item = split[0];
-
         LegendSet legendSet = split.length > 1 && split[1] != null ? legendSetService.getLegendSet( split[1] ) : null;
 
+        String[] psAndItem = split[0].split( PROGRAMSTAGE_SEP );
+        
+        String item = psAndItem.length > 1 ? psAndItem[1] : psAndItem[0];
+        
+        ProgramStage ps = null;
+        if ( psAndItem.length > 1 )
+        {
+            ps = programStageService.getProgramStage( psAndItem[0] );
+            Assert.notNull( ps, "Invalid program stage id:" + psAndItem[0] );
+        }
+        
         DataElement de = dataElementService.getDataElement( item );
 
-        if ( de != null && program.containsDataElement( de ) )
+        if ( de != null && program.containsDataElement( de, ps ) )
         {
             ValueType valueType = legendSet != null ? ValueType.TEXT : de.getValueType();
             
-            return new QueryItem( de, legendSet, valueType, de.getAggregationType(), de.getOptionSet() );
+            return new QueryItem( de, ps, legendSet, valueType, de.getAggregationType(), de.getOptionSet() );
         }
 
         TrackedEntityAttribute at = attributeService.getTrackedEntityAttribute( item );
@@ -394,18 +404,18 @@ public class DefaultEventDataQueryService
         {
             ValueType valueType = legendSet != null ? ValueType.TEXT : at.getValueType();
             
-            return new QueryItem( at, legendSet, valueType, at.getAggregationType(), at.getOptionSet() );
+            return new QueryItem( at, null, legendSet, valueType, at.getAggregationType(), at.getOptionSet() );
         }
 
         ProgramIndicator pi = programIndicatorService.getProgramIndicatorByUid( item );
 
         if ( pi != null && program.getProgramIndicators().contains( pi ) )
         {
-            return new QueryItem( pi, legendSet, ValueType.NUMBER, pi.getAggregationType(), null );
+            return new QueryItem( pi, null, legendSet, ValueType.NUMBER, pi.getAggregationType(), null );
         }
 
         throw new IllegalQueryException(
-            "Item identifier does not reference any data element, attribute or indicator part of the program: " + item );
+            "Item identifier does not reference any data element, attribute or indicator part of the program: " + split[0] );
     }
 
     private DimensionalItemObject getValueDimension( String value )

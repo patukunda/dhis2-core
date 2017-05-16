@@ -33,6 +33,7 @@ import org.hisp.dhis.dataelement.DataElement;
 import org.hisp.dhis.legend.LegendSet;
 import org.hisp.dhis.option.OptionSet;
 import org.hisp.dhis.program.Program;
+import org.hisp.dhis.program.ProgramStage;
 import org.hisp.dhis.trackedentity.TrackedEntityAttribute;
 
 import java.util.ArrayList;
@@ -60,6 +61,8 @@ public class QueryItem
     private OptionSet optionSet;
     
     private Program program;
+    
+    private ProgramStage programStage;
 
     // -------------------------------------------------------------------------
     // Constructors
@@ -70,6 +73,16 @@ public class QueryItem
         this.item = item;
     }
 
+    public QueryItem( DimensionalItemObject item, ProgramStage programStage, LegendSet legendSet, ValueType valueType, AggregationType aggregationType, OptionSet optionSet )
+    {
+        this.item = item;
+        this.legendSet = legendSet;
+        this.valueType = valueType;
+        this.aggregationType = aggregationType;
+        this.optionSet = optionSet;
+        this.programStage = programStage;
+    }
+    
     public QueryItem( DimensionalItemObject item, LegendSet legendSet, ValueType valueType, AggregationType aggregationType, OptionSet optionSet )
     {
         this.item = item;
@@ -157,6 +170,11 @@ public class QueryItem
     {
         return program != null;
     }
+    
+    public boolean hasProgramStage()
+    {
+        return programStage != null;
+    }
 
     public boolean isProgramIndicator()
     {
@@ -199,7 +217,7 @@ public class QueryItem
 
         for ( TrackedEntityAttribute attribute : attributes )
         {
-            queryItems.add( new QueryItem( attribute, (attribute.getLegendSets().isEmpty() ? null : attribute.getLegendSets().get(0) ), attribute.getValueType(), attribute.getAggregationType(), attribute.hasOptionSet() ? attribute.getOptionSet() : null ) );
+            queryItems.add( new QueryItem( attribute, null, (attribute.getLegendSets().isEmpty() ? null : attribute.getLegendSets().get(0) ), attribute.getValueType(), attribute.getAggregationType(), attribute.hasOptionSet() ? attribute.getOptionSet() : null ) );
         }
 
         return queryItems;
@@ -211,7 +229,7 @@ public class QueryItem
 
         for ( DataElement dataElement : dataElements )
         {
-            queryItems.add( new QueryItem( dataElement, dataElement.getLegendSet(), dataElement.getValueType(), dataElement.getAggregationType(), dataElement.hasOptionSet() ? dataElement.getOptionSet() : null ) );
+            queryItems.add( new QueryItem( dataElement, null, dataElement.getLegendSet(), dataElement.getValueType(), dataElement.getAggregationType(), dataElement.hasOptionSet() ? dataElement.getOptionSet() : null ) );
         }
 
         return queryItems;
@@ -246,6 +264,11 @@ public class QueryItem
         }
 
         final QueryItem other = (QueryItem) object;
+        
+        if ( this.getProgramStage() != other.getProgramStage() )
+        {
+            return false;
+        }
 
         return item.equals( other.getItem() );
     }
@@ -328,5 +351,15 @@ public class QueryItem
     public void setProgram( Program program )
     {
         this.program = program;
+    }
+    
+    public ProgramStage getProgramStage()
+    {
+        return programStage;
+    }
+
+    public void setProgramStage( ProgramStage programStage )
+    {
+        this.programStage = programStage;
     }
 }

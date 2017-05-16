@@ -286,13 +286,24 @@ public class Program
      */
     public boolean containsDataElement( DataElement dataElement )
     {
+        return containsDataElement( dataElement, null );
+    }
+    
+    /**
+     * Indicates whether this program contains the given data element in the given program stage.
+     */
+    public boolean containsDataElement( DataElement dataElement, ProgramStage programStage )
+    {
         for ( ProgramStage stage : programStages )
         {
-            for ( ProgramStageDataElement element : stage.getProgramStageDataElements() )
+            if ( stage.equals( programStage ) || null == programStage ) 
             {
-                if ( dataElement.equals( element.getDataElement() ) )
+                for ( ProgramStageDataElement element : stage.getProgramStageDataElements() )
                 {
-                    return true;
+                    if ( dataElement.equals( element.getDataElement() ) )
+                    {
+                        return true;
+                    }
                 }
             }
         }

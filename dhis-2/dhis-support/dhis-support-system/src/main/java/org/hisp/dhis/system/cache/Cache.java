@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 
 public interface Cache<V>
 {
-    void put( String key, @Nonnull V value);
+    void put( @Nonnull String key, @Nonnull V value);
     
     V get( @Nonnull String key, @Nonnull Function<String, ? extends V> mappingFunction );
 

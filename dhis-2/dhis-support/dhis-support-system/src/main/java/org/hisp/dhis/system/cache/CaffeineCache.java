@@ -2,19 +2,18 @@ package org.hisp.dhis.system.cache;
 
 import java.util.function.Function;
 
-import javax.annotation.Nonnull;
-
 public class CaffeineCache<V>
     implements Cache<V>
 {
-    private com.github.benmanes.caffeine.cache.Cache<String, V> cache = null;
+    private com.github.benmanes.caffeine.cache.Cache<String, V> cache;
 
     public CaffeineCache( com.github.benmanes.caffeine.cache.Cache<String, V> cache )
     {
         this.cache = cache;
     }
-    
-    public void put( String key, @Nonnull V value )
+
+    @Override
+    public void put( String key, V value )
     {
         cache.put( key, value );
     }

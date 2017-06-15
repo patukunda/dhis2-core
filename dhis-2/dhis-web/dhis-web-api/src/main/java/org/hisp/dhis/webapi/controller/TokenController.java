@@ -63,8 +63,10 @@ public class TokenController
 
     private static final String TOKEN_CACHE_KEY = "keyGoogleAccessToken";
 
-    private static final Cache<String, Optional<GoogleAccessToken>> TOKEN_CACHE = Caffeine.newBuilder().
-        maximumSize( 1 ).expireAfterWrite( 10, TimeUnit.MINUTES ).build();
+    private static final Cache<String, Optional<GoogleAccessToken>> TOKEN_CACHE = Caffeine.newBuilder()
+        .maximumSize( 1 )
+        .expireAfterWrite( 10, TimeUnit.MINUTES )
+        .build();
 
     @Autowired
     private DhisConfigurationProvider config;

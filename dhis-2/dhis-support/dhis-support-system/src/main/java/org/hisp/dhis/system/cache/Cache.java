@@ -49,7 +49,6 @@ public interface Cache<V>
      *
      * @param key key with which the specified value is to be associated.
      * @param value value to be associated with the specified key.
-     * @throws NullPointerException if the specified key or value is null.
      */
     void put( @Nonnull String key, @Nonnull V value );
     

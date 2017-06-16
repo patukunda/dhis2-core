@@ -34,8 +34,10 @@ import javax.annotation.Nonnull;
 
 /**
  * Cache abstraction over various cache implementations, such as local in-memory caches
- * such as {@code Caffeine} and remote server-based caches such as {@code memcached}. This
- * interface is lending heavily from the Caffeine Cache interface.
+ * such as {@code Caffeine} and remote server-based caches such as {@code memcached}. The
+ * cache will determine which underlying cache to use based on the DHIS 2 configuration.
+ * <p>
+ * This interface is borrowing heavily from {@link com.github.benmanes.caffeine.cache.Cache}.
  * 
  * @author Lars Helge Overland
  */
@@ -49,7 +51,7 @@ public interface Cache<V>
      * @param value value to be associated with the specified key.
      * @throws NullPointerException if the specified key or value is null.
      */
-    void put( @Nonnull String key, @Nonnull V value);
+    void put( @Nonnull String key, @Nonnull V value );
     
     /**
      * Returns the value associated with {@code key} in this cache, or {@code null} if there is no

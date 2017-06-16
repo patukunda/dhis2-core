@@ -28,18 +28,20 @@ package org.hisp.dhis.user;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.Sets;
 import org.hisp.dhis.common.DimensionalObject;
 import org.hisp.dhis.setting.SettingKey;
 import org.hisp.dhis.setting.SystemSettingManager;
+import org.hisp.dhis.system.cache.Cache;
+import org.hisp.dhis.system.cache.CacheConfig;
+import org.hisp.dhis.system.cache.CacheProvider;
 import org.hisp.dhis.commons.util.SystemUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.Assert;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -49,6 +51,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
 
 /**
  * Declare transactions on individual methods. The get-methods do not have
@@ -60,15 +64,8 @@ import java.util.stream.Collectors;
 public class DefaultUserSettingService
     implements UserSettingService
 {
-    /**
-     * Cache for user settings. Does not accept nulls. Key is "name-username".
-     */
-    private static Cache<String, Optional<Serializable>> SETTING_CACHE = Caffeine.newBuilder()
-        .expireAfterAccess( 1, TimeUnit.HOURS )
-        .initialCapacity( 200 )
-        .maximumSize( SystemUtils.isTestRun() ? 0 : 10000 )
-        .build();
-
+    private Cache<Optional<Serializable>> SETTING_CACHE = null;
+    
     private static final Map<String, SettingKey> NAME_SETTING_KEY_MAP = Sets.newHashSet(
         SettingKey.values() ).stream().collect( Collectors.toMap( SettingKey::getName, s -> s ) );
 
@@ -110,8 +107,22 @@ public class DefaultUserSettingService
     }
 
     @Autowired
+    private CacheProvider cacheProvider;
+    
+    @Autowired
     private TransactionTemplate transactionTemplate;
 
+    @PostConstruct
+    public void init()
+    {
+        SETTING_CACHE = cacheProvider.getCache( CacheConfig.instance()
+            .withExpirationSeconds( 3600 )
+            .withInitialCapacity( 200 )
+            .withMaximumSize( SystemUtils.isTestRun() ? 0 : 10000 ) );
+        
+        Assert.notNull( SETTING_CACHE, "Setting cache must be defined" );
+    }
+    
     // -------------------------------------------------------------------------
     // UserSettingService implementation
     // -------------------------------------------------------------------------

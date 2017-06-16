@@ -33,13 +33,25 @@ package org.hisp.dhis.system.cache;
  */
 public class CacheConfig
 {
-    private int expirationSeconds = 600;
+    private int expirationSeconds;
         
-    private int initialCapacity = 0;
+    private int initialCapacity;
 
-    private long maximumSize = 10000;
+    private long maximumSize;
     
-    public CacheConfig withExpiration( int expirationSeconds )
+    private CacheConfig()
+    {
+        expirationSeconds = 600;
+        initialCapacity = 0;
+        maximumSize = 10000;
+    }
+    
+    public static CacheConfig instance()
+    {
+        return new CacheConfig();
+    }
+    
+    public CacheConfig withExpirationSeconds( int expirationSeconds )
     {
         this.expirationSeconds = expirationSeconds;
         return this;

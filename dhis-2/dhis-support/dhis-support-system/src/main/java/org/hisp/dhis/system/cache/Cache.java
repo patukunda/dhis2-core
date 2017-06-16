@@ -34,8 +34,7 @@ import javax.annotation.Nonnull;
 
 /**
  * Cache abstraction over various cache implementations, such as local in-memory caches
- * such as {@code Caffeine} and remote server-based caches such as {@code memcached}. The
- * cache will determine which underlying cache to use based on the DHIS 2 configuration.
+ * such as {@code Caffeine} and remote server-based caches such as {@code memcached}.
  * <p>
  * This interface is borrowing heavily from {@link com.github.benmanes.caffeine.cache.Cache}.
  * 

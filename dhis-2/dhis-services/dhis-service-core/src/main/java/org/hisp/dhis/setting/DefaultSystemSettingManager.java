@@ -28,13 +28,14 @@ package org.hisp.dhis.setting;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hisp.dhis.commons.util.SystemUtils;
+import org.hisp.dhis.system.cache.Cache;
+import org.hisp.dhis.system.cache.CacheConfig;
+import org.hisp.dhis.system.cache.CacheProvider;
 import org.hisp.dhis.system.util.ValidationUtils;
 import org.jasypt.encryption.pbe.PBEStringEncryptor;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
@@ -43,11 +44,12 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.Assert;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.Serializable;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -60,16 +62,9 @@ import java.util.stream.Collectors;
  */
 public class DefaultSystemSettingManager
     implements SystemSettingManager
-{
-    /**
-     * Cache for system settings. Does not accept nulls. Disabled during test phase.
-     */
-    private static final Cache<String, Optional<Serializable>> SETTING_CACHE = Caffeine.newBuilder()
-        .expireAfterAccess( 1, TimeUnit.HOURS )
-        .initialCapacity( 200 )
-        .maximumSize( SystemUtils.isTestRun() ? 0 : 400 )
-        .build();
-
+{  
+    private Cache<Optional<Serializable>> SETTING_CACHE = null;
+    
     private static final Map<String, SettingKey> NAME_KEY_MAP = Lists.newArrayList(
         SettingKey.values() ).stream().collect( Collectors.toMap( SettingKey::getName, e -> e ) );
 
@@ -94,10 +89,24 @@ public class DefaultSystemSettingManager
     }
 
     @Autowired
+    private CacheProvider cacheProvider;
+    
+    @Autowired
     private TransactionTemplate transactionTemplate;
 
     @Resource( name = "tripleDesStringEncryptor" )
     private PBEStringEncryptor pbeStringEncryptor;
+
+    @PostConstruct
+    public void init()
+    {
+        SETTING_CACHE = cacheProvider.getCache( CacheConfig.instance()
+            .withExpirationSeconds( 3600 )
+            .withInitialCapacity( 200 )
+            .withMaximumSize( SystemUtils.isTestRun() ? 0 : 400 ) );
+        
+        Assert.notNull( SETTING_CACHE, "Setting cache must be defined" );
+    }
 
     // -------------------------------------------------------------------------
     // SystemSettingManager implementation

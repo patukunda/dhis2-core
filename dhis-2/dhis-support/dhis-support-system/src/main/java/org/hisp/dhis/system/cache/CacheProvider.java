@@ -33,5 +33,13 @@ package org.hisp.dhis.system.cache;
  */
 public interface CacheProvider
 {
+    /**
+     * Returns a {@link Cache}. The underlying cache implementation to use will 
+     * be determined based on the DHIS 2 configuration. The cache implementations
+     * currently supported are {@code Caffeine} and {@code memcached}.
+     * 
+     * @param config the cache configuration.
+     * @return a cache.
+     */
     <V> Cache<V> getCache( CacheConfig config );
 }

@@ -27,11 +27,12 @@
     <property name="taskScheduler" ref="taskScheduler" />
     <property name="taskExecutor" ref="taskScheduler" />
   </bean>
+  
+  <bean id="cacheProvider" class="org.hisp.dhis.system.cache.DefaultCacheProvider"/>
 
   <bean id="restTemplate" class="org.springframework.web.client.RestTemplate"/>
   
-  <bean id="uriBuilder" class="org.springframework.web.util.UriComponentsBuilder"/>
- 
+  <bean id="uriBuilder" class="org.springframework.web.util.UriComponentsBuilder"/> 
   
   <bean id="org.hisp.dhis.system.velocity.VelocityManager" class="org.hisp.dhis.system.velocity.VelocityManager" />
 

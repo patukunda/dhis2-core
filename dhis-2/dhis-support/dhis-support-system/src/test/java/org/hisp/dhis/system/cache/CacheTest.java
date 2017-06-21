@@ -28,64 +28,39 @@ package org.hisp.dhis.system.cache;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import java.util.function.Function;
-import javax.annotation.Nonnull;
-import java.io.Serializable;
+import org.hisp.dhis.DhisSpringTest;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Optional;
+import static org.junit.Assert.*;
 
 /**
- * {@code Caffeine} based cache implementation. Values are wrapped in an optional
- * in order to avoid caching null values directly which is not supported by
- * Caffeine.
- * 
  * @author Lars Helge Overland
  */
-public class CaffeineCache<V extends Serializable>
-    implements Cache<V>
+public class CacheTest
+    extends DhisSpringTest
 {
-    private com.github.benmanes.caffeine.cache.Cache<String, Optional<V>> cache;
-
-    public CaffeineCache( com.github.benmanes.caffeine.cache.Cache<String, Optional<V>> cache )
-    {
-        this.cache = cache;
-    }
-
-    @Override
-    public void put( String key, V value )
-    {
-        Optional<V> optValue = Optional.ofNullable( value );
-        
-        cache.put( key, optValue );
-    }
-
-    @Override
-    public V getIfPresent( @Nonnull String key )
-    {
-        Optional<V> value = cache.getIfPresent( key );
-        
-        return value != null ? value.orElse( null ) : null;
-    }
+    @Autowired
+    private CacheProvider cacheProvider;
     
-    @Override
-    public V get( String key, Function<String, ? extends V> mappingFunction )
+    @Test
+    public void testGetIfPresent()
     {
-        Function<String, Optional<V>> optMappingFunction = ( k ) -> Optional.ofNullable( mappingFunction.apply( k ) );
+        Cache<String> cache = cacheProvider.getCache( CacheConfig.instance() );
         
-        Optional<V> value =  cache.get( key, optMappingFunction );
+        cache.put( "keyA", "valueA" );
+        cache.put( "keyB", null );
         
-        return value.orElse( null );
+        assertEquals( "valueA", cache.getIfPresent( "keyA" ) );
+        assertNull( cache.getIfPresent( "keyB" ) );
     }
 
-    @Override
-    public void invalidate( String key )
+    @Test
+    public void testGet()
     {
-        cache.invalidate( key );        
-    }
-
-    @Override
-    public void invalidateAll()
-    {
-        cache.invalidateAll();        
+        Cache<String> cache = cacheProvider.getCache( CacheConfig.instance() );
+                
+        assertEquals( "valueA", cache.get( "keyA", ( k ) -> "valueA" ) );
+        assertNull( cache.get( "keyB", ( k ) -> null ) );
     }
 }

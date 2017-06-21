@@ -49,7 +49,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -64,7 +63,7 @@ import javax.annotation.PostConstruct;
 public class DefaultUserSettingService
     implements UserSettingService
 {
-    private Cache<Optional<Serializable>> SETTING_CACHE = null;
+    private Cache<Serializable> SETTING_CACHE = null;
     
     private static final Map<String, SettingKey> NAME_SETTING_KEY_MAP = Sets.newHashSet(
         SettingKey.values() ).stream().collect( Collectors.toMap( SettingKey::getName, s -> s ) );
@@ -220,7 +219,7 @@ public class DefaultUserSettingService
     @Override
     public Serializable getUserSetting( UserSettingKey key )
     {
-        return getUserSetting( key, Optional.empty() ).orElse( null );
+        return getUserSetting( key, Optional.empty() );
     }
 
     /**
@@ -230,7 +229,7 @@ public class DefaultUserSettingService
     @Override
     public Serializable getUserSetting( UserSettingKey key, User user )
     {
-        return getUserSetting( key, Optional.ofNullable( user ) ).orElse( null );
+        return getUserSetting( key, Optional.ofNullable( user ) );
     }
 
     @Override
@@ -289,24 +288,23 @@ public class DefaultUserSettingService
     // Private methods
     // -------------------------------------------------------------------------
 
-    private Optional<Serializable> getUserSetting( UserSettingKey key, Optional<User> user )
+    private Serializable getUserSetting( UserSettingKey key, Optional<User> user )
     {
         if ( key == null )
         {
-            return Optional.empty();
+            return null;
         }
 
         String username = user.isPresent() ? user.get().getUsername() : currentUserService.getCurrentUsername();
 
         String cacheKey = getCacheKey( key.getName(), username );
 
-        Optional<Serializable> result = SETTING_CACHE.
-            get( cacheKey, c -> getUserSettingOptional( key, username ) );
+        Serializable result = SETTING_CACHE.
+            get( cacheKey, c -> getUserSetting( key, username ) );
 
-        if ( !result.isPresent() && NAME_SETTING_KEY_MAP.containsKey( key.getName() ) )
+        if ( result == null && NAME_SETTING_KEY_MAP.containsKey( key.getName() ) )
         {
-            return Optional.ofNullable(
-                systemSettingManager.getSystemSetting( NAME_SETTING_KEY_MAP.get( key.getName() ) ) );
+            return systemSettingManager.getSystemSetting( NAME_SETTING_KEY_MAP.get( key.getName() ) );
         }
         else
         {
@@ -322,13 +320,13 @@ public class DefaultUserSettingService
      * @param username the username of the user.
      * @return an optional user setting value.
      */
-    private Optional<Serializable> getUserSettingOptional( UserSettingKey key, String username )
+    private Serializable getUserSetting( UserSettingKey key, String username )
     {
         UserCredentials userCredentials = userService.getUserCredentialsByUsername( username );
 
         if ( userCredentials == null )
         {
-            return Optional.empty();
+            return null;
         }
 
         UserSetting setting = transactionTemplate.execute( new TransactionCallback<UserSetting>()
@@ -339,7 +337,6 @@ public class DefaultUserSettingService
             }
         } );
 
-        return setting != null && setting.hasValue() ?
-            Optional.of( setting.getValue() ) : Optional.empty();
+        return setting != null ? setting.getValue() : null;
     }
 }

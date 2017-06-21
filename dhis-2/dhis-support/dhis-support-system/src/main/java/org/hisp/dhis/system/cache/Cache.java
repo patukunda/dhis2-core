@@ -32,6 +32,8 @@ import java.util.function.Function;
 
 import javax.annotation.Nonnull;
 
+import java.io.Serializable;
+
 /**
  * Cache abstraction over various cache implementations, such as local in-memory caches
  * such as {@code Caffeine} and remote server-based caches such as {@code memcached}.
@@ -40,11 +42,12 @@ import javax.annotation.Nonnull;
  * 
  * @author Lars Helge Overland
  */
-public interface Cache<V>
+public interface Cache<V extends Serializable>
 {
     /**
      * Associates {@code value} with {@code key} in this cache. If the cache previously contained a
-     * value associated with {@code key}, the old value is replaced by {@code value}.
+     * value associated with {@code key}, the old value is replaced by {@code value}. Null values
+     * are permitted.
      *
      * @param key key with which the specified value is to be associated.
      * @param value value to be associated with the specified key.

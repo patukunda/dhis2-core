@@ -29,17 +29,15 @@ package org.hisp.dhis.system.cache;
  */
 
 import java.util.function.Function;
-
+import java.io.Serializable;
 import javax.annotation.Nonnull;
-
 import org.hisp.dhis.common.CodeGenerator;
-
 import net.spy.memcached.MemcachedClient;
 
 /**
  * @author Lars Helge Overland
  */
-public class MemcachedCache<V>
+public class MemcachedCache<V extends Serializable>
     implements Cache<V>
 {
     private static final String SEP = ":";

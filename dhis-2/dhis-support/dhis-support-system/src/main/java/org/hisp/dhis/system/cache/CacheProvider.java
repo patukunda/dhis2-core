@@ -28,6 +28,8 @@ package org.hisp.dhis.system.cache;
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import java.io.Serializable;
+
 /**
  * @author Lars Helge Overland
  */
@@ -41,5 +43,5 @@ public interface CacheProvider
      * @param config the cache configuration.
      * @return a cache.
      */
-    <V> Cache<V> getCache( CacheConfig config );
+    <V extends Serializable> Cache<V> getCache( CacheConfig config );
 }

@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 public class DefaultSystemSettingManager
     implements SystemSettingManager
 {  
-    private Cache<Optional<Serializable>> SETTING_CACHE = null;
+    private Cache<Serializable> SETTING_CACHE = null;
     
     private static final Map<String, SettingKey> NAME_KEY_MAP = Lists.newArrayList(
         SettingKey.values() ).stream().collect( Collectors.toMap( SettingKey::getName, e -> e ) );
@@ -191,10 +191,8 @@ public class DefaultSystemSettingManager
     @Override
     public Serializable getSystemSetting( SettingKey setting )
     {
-        Optional<Serializable> value = SETTING_CACHE.get( setting.getName(),
-            key -> getSystemSettingOptional( key, setting.getDefaultValue() ) );
-
-        return value.orElse( null );
+        return SETTING_CACHE.get( setting.getName(),
+            key -> getSystemSetting( key, setting.getDefaultValue() ) );
     }
 
     /**
@@ -204,7 +202,7 @@ public class DefaultSystemSettingManager
     @Override
     public Serializable getSystemSetting( SettingKey setting, Serializable defaultValue )
     {
-        return getSystemSettingOptional( setting.getName(), defaultValue ).orElse( null );
+        return getSystemSetting( setting.getName(), defaultValue );
     }
 
     /**
@@ -215,7 +213,7 @@ public class DefaultSystemSettingManager
      * @param defaultValue the default value for the system setting.
      * @return an optional system setting value.
      */
-    private Optional<Serializable> getSystemSettingOptional( String name, Serializable defaultValue )
+    private Serializable getSystemSetting( String name, Serializable defaultValue )
     {
         SystemSetting setting = transactionTemplate.execute( new TransactionCallback<SystemSetting>()
         {
@@ -231,22 +229,22 @@ public class DefaultSystemSettingManager
             {
                 try
                 {
-                    return Optional.of( pbeStringEncryptor.decrypt( (String) setting.getValue() ) );
+                    return pbeStringEncryptor.decrypt( (String) setting.getValue() );
                 }
                 catch ( EncryptionOperationNotPossibleException e ) // Most likely this means the value is not encrypted, or not existing
                 {
                     log.warn( "Could not decrypt system setting '" + name + "'" );
-                    return Optional.empty();
+                    return null;
                 }
             }
             else
             {
-                return Optional.of( setting.getValue() );
+                return setting.getValue();
             }
         }
         else
         {
-            return Optional.ofNullable( defaultValue );
+            return defaultValue;
         }
     }
 

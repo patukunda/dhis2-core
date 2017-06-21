@@ -29,7 +29,9 @@ package org.hisp.dhis.system.cache;
  */
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.UncheckedIOException;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.hisp.dhis.commons.util.SystemUtils;
@@ -51,7 +53,7 @@ public class DefaultCacheProvider
     @Autowired
     private DhisConfigurationProvider dhisConfig;
     
-    public <V> Cache<V> getCache( CacheConfig config )
+    public <V extends Serializable> Cache<V> getCache( CacheConfig config )
     {        
         if ( dhisConfig.isMemcachedCacheProviderEnabled() )
         {
@@ -63,7 +65,7 @@ public class DefaultCacheProvider
         }
     }
     
-    private <V> Cache<V> getMemcachedCache( CacheConfig config )
+    private <V extends Serializable> Cache<V> getMemcachedCache( CacheConfig config )
     {
         String servers = dhisConfig.getProperty( ConfigurationKey.CACHE_SERVERS );
         
@@ -79,9 +81,9 @@ public class DefaultCacheProvider
         }
     }
     
-    private <V> Cache<V> getCaffeineCache( CacheConfig config )
+    public <V extends Serializable> Cache<V> getCaffeineCache( CacheConfig config )
     {
-        com.github.benmanes.caffeine.cache.Cache<String, V> cache = Caffeine.newBuilder()
+        com.github.benmanes.caffeine.cache.Cache<String, Optional<V>> cache = Caffeine.newBuilder()
             .expireAfterAccess( config.getExpirationSeconds(), TimeUnit.SECONDS )
             .initialCapacity( config.getInitialCapacity() )
             .maximumSize( SystemUtils.isTestRun() ? 0 : config.getMaximumSize() )

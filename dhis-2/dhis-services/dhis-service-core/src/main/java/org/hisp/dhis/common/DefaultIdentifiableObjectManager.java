@@ -919,6 +919,13 @@ public class DefaultIdentifiableObjectManager
     @SuppressWarnings( "unchecked" )
     public <T extends IdentifiableObject> T getObject( Class<T> clazz, IdScheme idScheme, String value )
     {
+        return getObject( clazz, idScheme, value, false );
+    }
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    public <T extends IdentifiableObject> T getObject( Class<T> clazz, IdScheme idScheme, String value, boolean includeDeleted )
+    {
         GenericIdentifiableObjectStore<T> store = (GenericIdentifiableObjectStore<T>) getIdentifiableObjectStore( clazz );
 
         if ( store == null )

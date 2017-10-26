@@ -267,10 +267,10 @@ public class ProgramStageInstanceStoreTest
         programStageInstanceStore.save( programStageInstanceA );
         programStageInstanceStore.save( programStageInstanceB );
 
-        ProgramStageInstance programStageInstance = programStageInstanceStore.get( programInstanceA, stageA );
+        ProgramStageInstance programStageInstance = programStageInstanceStore.get( programInstanceA, stageA, false );
         assertEquals( programStageInstanceA, programStageInstance );
 
-        programStageInstance = programStageInstanceStore.get( programInstanceA, stageB );
+        programStageInstance = programStageInstanceStore.get( programInstanceA, stageB, false );
         assertEquals( programStageInstanceB, programStageInstance );
     }
 

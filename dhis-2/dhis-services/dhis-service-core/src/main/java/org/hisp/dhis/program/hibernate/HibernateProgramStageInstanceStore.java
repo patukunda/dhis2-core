@@ -66,11 +66,12 @@ public class HibernateProgramStageInstanceStore
 
     @Override
     @SuppressWarnings( "unchecked" )
-    public ProgramStageInstance get( ProgramInstance programInstance, ProgramStage programStage )
+    public ProgramStageInstance get( ProgramInstance programInstance, ProgramStage programStage, boolean includeDeleted )
     {
         List<ProgramStageInstance> list = getCriteria(
             Restrictions.eq( "programInstance", programInstance ),
             Restrictions.eq( "programStage", programStage ) ).
+            add( Restrictions.eq( "deleted", includeDeleted ) ).
             addOrder( Order.asc( "id" ) ).list();
 
         return list.isEmpty() ? null : list.get( list.size() - 1 );

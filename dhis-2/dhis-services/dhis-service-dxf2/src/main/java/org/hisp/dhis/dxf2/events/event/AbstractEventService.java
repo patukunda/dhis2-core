@@ -348,7 +348,8 @@ public abstract class AbstractEventService
             if ( !programStage.getRepeatable() )
             {
                 programStageInstance = programStageInstanceService.getProgramStageInstance( programInstance,
-                    programStage );
+                    programStage, true );
+                log.info("Debugging programStageInstanceService.getProgramStageInstance: " + programStageInstance);
 
                 if ( programStageInstance != null && !programStageInstance.getUid().equals( event.getEvent() ) )
                 {
@@ -361,6 +362,7 @@ public abstract class AbstractEventService
                 if ( StringUtils.isNotEmpty( event.getEvent() ) )
                 {
                     programStageInstance = manager.getObject( ProgramStageInstance.class, importOptions.getIdSchemes().getProgramStageInstanceIdScheme(), event.getEvent() );
+                    log.info("Debugging manager.getObject: " + programStageInstance);
                     
                     if ( programStageInstance == null )
                     {
@@ -402,6 +404,7 @@ public abstract class AbstractEventService
             if ( StringUtils.isNotEmpty( event.getEvent() ) )
             {
                 programStageInstance = manager.getObject( ProgramStageInstance.class, importOptions.getIdSchemes().getProgramStageInstanceIdScheme(), event.getEvent() );
+                log.info("Debugging manager.getObject 2: " + programStageInstance);
 
                 if ( programStageInstance == null )
                 {
@@ -1299,6 +1302,10 @@ public abstract class AbstractEventService
 
         if ( !dryRun )
         {
+            if(event.isDeleted())
+            {
+                log.info( "Debugging: event uid " + event.getEvent() + " psi: " + programStageInstance );
+            }
             if ( programStageInstance == null )
             {
                 programStageInstance = createProgramStageInstance( event, programStage, programInstance, organisationUnit,

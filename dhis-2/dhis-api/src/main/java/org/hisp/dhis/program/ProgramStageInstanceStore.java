@@ -54,7 +54,7 @@ public interface ProgramStageInstanceStore
      * @param programStage    ProgramStage
      * @return ProgramStageInstance
      */
-    ProgramStageInstance get( ProgramInstance programInstance, ProgramStage programStage );
+    ProgramStageInstance get( ProgramInstance programInstance, ProgramStage programStage, boolean includeDeleted );
 
     /**
      * Retrieve an event list on program instance list with a certain status

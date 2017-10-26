@@ -137,9 +137,9 @@ public class DefaultProgramStageInstanceService
     }
 
     @Override
-    public ProgramStageInstance getProgramStageInstance( ProgramInstance programInstance, ProgramStage programStage )
+    public ProgramStageInstance getProgramStageInstance( ProgramInstance programInstance, ProgramStage programStage, boolean includeDeleted )
     {
-        return programStageInstanceStore.get( programInstance, programStage );
+        return programStageInstanceStore.get( programInstance, programStage, includeDeleted );
     }
 
     @Override

@@ -346,10 +346,10 @@ public class ProgramStageInstanceServiceTest
         programStageInstanceService.addProgramStageInstance( programStageInstanceB );
 
         ProgramStageInstance programStageInstance = programStageInstanceService.getProgramStageInstance(
-            programInstanceA, stageA );
+            programInstanceA, stageA, false );
         assertEquals( programStageInstanceA, programStageInstance );
 
-        programStageInstance = programStageInstanceService.getProgramStageInstance( programInstanceA, stageB );
+        programStageInstance = programStageInstanceService.getProgramStageInstance( programInstanceA, stageB, false );
         assertEquals( programStageInstanceB, programStageInstance );
     }
 

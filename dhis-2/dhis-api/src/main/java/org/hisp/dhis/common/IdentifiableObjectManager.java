@@ -148,6 +148,8 @@ public interface IdentifiableObjectManager
 
     <T extends IdentifiableObject> T getObject( Class<T> clazz, IdScheme idScheme, String value );
 
+    <T extends IdentifiableObject> T getObject( Class<T> clazz, IdScheme idScheme, String value, boolean includeDeleted );
+
     IdentifiableObject getObject( String uid, String simpleClassName );
 
     IdentifiableObject getObject( int id, String simpleClassName );

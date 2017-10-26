@@ -103,7 +103,7 @@ public interface ProgramStageInstanceService
      * @return the ProgramStageInstance corresponding to the given
      *          programInstance and ProgramStage, or null if no match.
      */
-    ProgramStageInstance getProgramStageInstance( ProgramInstance programInstance, ProgramStage programStage );
+    ProgramStageInstance getProgramStageInstance( ProgramInstance programInstance, ProgramStage programStage, boolean includeDeleted );
 
     /**
      * Retrieve an event list on a list of ProgramInstances with a certain status.

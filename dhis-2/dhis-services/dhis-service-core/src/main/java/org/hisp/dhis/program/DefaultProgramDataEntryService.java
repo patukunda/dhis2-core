@@ -199,7 +199,7 @@ public class DefaultProgramDataEntryService
                     {
                         ProgramStage otherProgramStage = programStageService.getProgramStage( programStageUid );
                         ProgramStageInstance otherProgramStageInstance = programStageInstanceService
-                            .getProgramStageInstance( programStageInstance.getProgramInstance(), otherProgramStage );
+                            .getProgramStageInstance( programStageInstance.getProgramInstance(), otherProgramStage, false );
                         entityInstanceDataValues = dataValueService.getTrackedEntityDataValues( otherProgramStageInstance );
                         mapDataValue.put( programStageUid, entityInstanceDataValues );
                     }

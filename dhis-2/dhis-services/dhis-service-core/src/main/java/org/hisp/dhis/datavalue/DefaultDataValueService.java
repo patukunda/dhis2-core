@@ -209,11 +209,6 @@ public class DefaultDataValueService
 
         dataValueAuditService.addDataValueAudit( dataValueAudit );
 
-        if ( dataValue.getDataElement().isFileType() )
-        {
-            fileResourceService.deleteFileResource( dataValue.getValue() );
-        }
-
         dataValue.setLastUpdated( new Date() );
         dataValue.setDeleted( true );
         

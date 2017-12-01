@@ -41,6 +41,7 @@ import org.hisp.dhis.datavalue.DataValueAudit;
 import org.hisp.dhis.datavalue.DataValueAuditService;
 import org.hisp.dhis.datavalue.DataValueService;
 import org.hisp.dhis.dxf2.utils.InputUtils;
+import org.hisp.dhis.fileresource.FileResource;
 import org.hisp.dhis.fileresource.FileResourceService;
 import org.hisp.dhis.option.OptionSet;
 import org.hisp.dhis.organisationunit.OrganisationUnit;
@@ -242,14 +243,9 @@ public class GetHistoryAction
         return commentOptionSet;
     }
 
-    public String getFileName( String uid )
-    {
-        return fileResourceService.getFileResource( uid ).getName();
-    }
+    private HashMap<String, String> fileNames;
 
-    public FileResourceService getFileResourceService() {
-        return fileResourceService;
-    }
+    public HashMap<String, String> getFileNames() { return fileNames; }
 
     // -------------------------------------------------------------------------
     // Action implementation
@@ -290,6 +286,25 @@ public class GetHistoryAction
         {
             UserCredentials credentials = userService.getUserCredentialsByUsername( dataValue.getStoredBy() );
             storedBy = credentials != null ? credentials.getName() : dataValue.getStoredBy();
+        }
+
+        if ( dataElement.isFileType() )
+        {
+            fileNames = new HashMap<String, String>();
+            dataValueAudits.stream()
+                    .filter( audit -> audit != null )
+                    .map( audit -> audit.getValue() )
+                    .forEach( uid -> {
+                        FileResource fr = fileResourceService.getFileResource( uid );
+                        if ( fr != null )
+                        {
+                            fileNames.put (uid, fr.getName() );
+                        }
+                        else
+                        {
+                            fileNames.put(uid, "not found");
+                        }
+                    } );
         }
 
         historyInvalid = dataElementHistory == null;

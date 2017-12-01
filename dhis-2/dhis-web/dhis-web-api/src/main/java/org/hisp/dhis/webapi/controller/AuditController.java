@@ -148,10 +148,6 @@ public class AuditController
 
         if ( storageStatus != FileResourceStorageStatus.STORED )
         {
-            // Special case:
-            //  The FileResource exists and has been tied to this DataValue, however, the underlying file
-            //  content is still not stored to the (most likely external) file store provider.
-
             // HTTP 409, for lack of a more suitable status code
             WebMessage webMessage = WebMessageUtils.conflict( "The content is being processed and is not available yet. Try again later.",
                     "The content requested is in transit to the file store and will be available at a later time." );
